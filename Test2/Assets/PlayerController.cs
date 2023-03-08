@@ -32,13 +32,18 @@ public class PlayerController : MonoBehaviour
     private Vector3 Movement;
 
     private Animator animator;
+    private SpriteRenderer playerRenderer;
 
     private bool onAttack;
     private bool onHit;
     private bool onRoll;
     private bool onJump;
     private bool onDive;
+    private float Direction;
 
+    public GameObject BulletPrefab;
+
+    private List<GameObject> Bullets = new List<GameObject>();
 
     //  유니티 기본 제공 함수
     //  초기값을 설정할 때 사용
@@ -49,6 +54,7 @@ public class PlayerController : MonoBehaviour
 
         //  player 의 Animator를 받아온다.
         animator = this.GetComponent<Animator>();
+        playerRenderer = this.GetComponent<SpriteRenderer>();
 
         onAttack = false;
 
@@ -59,6 +65,8 @@ public class PlayerController : MonoBehaviour
         onJump = false;
 
         onDive = false;
+
+        Direction = 1.0f;
     }
 
     //  유니티 기본 제공 함수
@@ -69,12 +77,27 @@ public class PlayerController : MonoBehaviour
 
         // **  Input.GetAxis =     -1 ~ 1 사이의 값을 반환함. 
         float Hor = Input.GetAxisRaw("Horizontal"); // -1 or 0 or 1 셋중에 하나를 반환.
-        float Ver = Input.GetAxis("Vertical"); // -1 ~ 1 까지 실수로 반환.
+
+        if (Hor != 0)
+            Direction = Hor;
+
+        if(Direction < 0)
+        {
+            playerRenderer.flipX = true;
+        }
+        else if (Direction > 0)
+        {
+            playerRenderer.flipX = false;
+        }
+
+        playerRenderer.flipX = (Hor < 0) ? true : false;
 
         Movement = new Vector3(
             Hor * Time.deltaTime * Speed,
-            Ver * Time.deltaTime * Speed,
+            0.0f,
             0.0f);
+
+
 
         if (Input.GetKey(KeyCode.LeftControl))
             OnAttack();
@@ -90,6 +113,21 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftAlt))
             OnDive();
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            GameObject Obj = Instantiate(BulletPrefab);
+            //Obj.transform.name = "";
+            Obj.transform.position = transform.position;
+            BulletController controller = Obj.AddComponent<BulletController>();
+
+            controller.Direction = new Vector3(Direction, 0.0f, 0.0f) ;
+            SpriteRenderer bulletRenderer = Obj.GetComponent<SpriteRenderer>();
+            bulletRenderer.flipY = playerRenderer.flipX;
+
+
+            Bullets.Add(Obj);
+        }
 
         animator.SetFloat("Speed", Hor);
         transform.position += Movement;
