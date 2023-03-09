@@ -43,6 +43,10 @@ public class PlayerController : MonoBehaviour
 
     public GameObject BulletPrefab;
 
+    public GameObject fxPrefab;
+
+    public GameObject[] stageBack = new GameObject[7];
+
     private List<GameObject> Bullets = new List<GameObject>();
 
     //  유니티 기본 제공 함수
@@ -67,6 +71,9 @@ public class PlayerController : MonoBehaviour
         onDive = false;
 
         Direction = 1.0f;
+
+        for (int i = 0; i < 7; ++i)
+            stageBack[i] = GameObject.Find(i.ToString());
     }
 
     //  유니티 기본 제공 함수
@@ -122,6 +129,9 @@ public class PlayerController : MonoBehaviour
             BulletController controller = Obj.AddComponent<BulletController>();
 
             controller.Direction = new Vector3(Direction, 0.0f, 0.0f) ;
+
+            controller.fxPrefab = fxPrefab;
+
             SpriteRenderer bulletRenderer = Obj.GetComponent<SpriteRenderer>();
             bulletRenderer.flipY = playerRenderer.flipX;
 
@@ -130,7 +140,7 @@ public class PlayerController : MonoBehaviour
         }
 
         animator.SetFloat("Speed", Hor);
-        transform.position += Movement;
+        //transform.position += Movement;
     }
 
 
